@@ -1,0 +1,63 @@
+﻿@model DateTime
+@{
+    ViewBag.Title = "Home Page";
+}
+
+
+<p>@Model</p>
+<p id='time'>@Model</p>
+
+<form method="post" action="/home/logout">
+    <button>Logout</button>
+</form>
+
+<script>
+    function apiCall(url) {
+        return new Promise(function (resolve, reject) {
+            var xhr = new XMLHttpRequest();
+            xhr.onload = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    resolve();
+                } else reject();
+            };
+
+            xhr.open("POST", url, true);
+            xhr.send();
+        })
+    }
+
+    window.exp = moment('@Model.ToString("O")').utc().format('MM/DD/YYYY h:mm:ss a')
+    window.act = false
+
+    const sec = 1000
+    const setActTrue = () => {
+        setTimeout(function () {
+            console.log('set act true')
+            window.act = true
+            console.log(window.act)
+        }, 61 * sec)
+    }
+
+    setTimeout(function tick() {
+        document.querySelector('#time').innerText = (new moment()).utc().format('MM/DD/YYYY h:mm:ss a')
+        setTimeout(tick, 1 * sec)
+    }, 1 * sec)
+
+    const timeout = 10 * sec
+    setTimeout(function tick() {
+        if (window.act) {
+            console.log('extend')
+            return apiCall('/home/extend')
+                .then(() => console.log('extended'))
+                .then(() => {
+                    setTimeout(tick, timeout)
+                    setActTrue()
+                })
+                .catch(() => { })
+        }
+    }, timeout)
+
+    setActTrue()
+
+    console.log(exp)
+</script>
