@@ -1,5 +1,4 @@
-﻿using System;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 using System.Web.Security;
 
 namespace TestApp.Controllers
@@ -14,34 +13,31 @@ namespace TestApp.Controllers
         [Authorize]
         public ActionResult Account()
         {
-            return View(DateTime.UtcNow);
+            var auth = FormsAuthentication.GetAuthCookie("vasya", true);
+            return View(auth.Expires.ToUniversalTime());
         }
 
         [HttpPost]
         public ActionResult Login()
         {
             FormsAuthentication.SetAuthCookie("vasya", true);
-
             return RedirectToAction("Account");
         }
 
         [HttpPost]
+        [Authorize]
         public ActionResult Logout()
         {
             FormsAuthentication.SignOut();
-
             return RedirectToAction("Index");
         }
 
         [HttpPost]
+        [Authorize]
         public ActionResult Extend()
         {
-            return Json(new { date = DateTime.UtcNow });
-        }
-
-        public ActionResult Close()
-        {
-            return Json(new { date = DateTime.UtcNow });
+            var auth = FormsAuthentication.GetAuthCookie("vasya", true);
+            return Json(new { date = auth.Expires.ToUniversalTime().ToString("O") });
         }
     }
 }
